@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, TextInput } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text, TextInput, Dimensions } from 'react-native';
 import Products from './Products.js';
 import Form from './Form.js';
 import Papa from 'papaparse';
+
+const { width } = Dimensions.get('window');
 
 const Home = () => {
   const [products, setProducts] = useState([]);
@@ -112,6 +114,7 @@ const styles = StyleSheet.create({
   },
   navbar: {
     flexDirection: 'row',
+    flexWrap: width < 500 ? 'wrap' : 'nowrap', // Wrap for smaller screens
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#007BFF',
@@ -121,19 +124,20 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   searchBar: {
-    flex: 1,
+    flex: width < 500 ? 1 : 1.5, // Adjust width for smaller screens
     marginHorizontal: 8,
-    paddingVertical: 8,
+    paddingVertical: width < 500 ? 6 : 8,
     paddingHorizontal: 12,
     backgroundColor: '#ffffff',
     borderRadius: 6,
     borderColor: '#ced4da',
     borderWidth: 1,
     fontSize: 14,
+    minWidth: width < 500 ? '100%' : 'auto', // Full width on small screens
   },
   navButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 10,
+    paddingVertical: width < 500 ? 4 : 6, // Compact padding for smaller screens
+    paddingHorizontal: width < 500 ? 8 : 10,
     borderRadius: 4,
     backgroundColor: '#17a2b8',
     marginHorizontal: 4,
@@ -141,11 +145,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
     shadowOffset: { width: 0, height: 2 },
+    minWidth: width < 500 ? '100%' : 'auto', // Full width on small screens
+    marginTop: width < 500 ? 4 : 0, // Add margin-top for wrapped items
   },
   navButtonText: {
     color: '#ffffff',
     fontWeight: '500',
-    fontSize: 14,
+    fontSize: width < 500 ? 13 : 14, // Adjust font size for smaller screens
+    textAlign: 'center',
   },
   showAvailableButton: {
     backgroundColor: '#28a745',
@@ -185,6 +192,5 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 });
-
 
 export default Home;
