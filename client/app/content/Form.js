@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
-import Papa from 'papaparse';
+import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 
-const Form = ({ stockData, pincodes, productId, setProductId }) => {
+const Form = ({ stockData, pincodes, productId, setProductId, setBuyProduct }) => {
   const [pincode, setPincode] = useState('');
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
 
   const checkAvailability = (e) => {
-    e.preventDefault();
-
     const stock = stockData.find((product) => product['Product ID'] === productId);
     if (!stock || stock['Stock Available'] === 'False') {
       setError('Product not available');
@@ -33,7 +31,7 @@ const Form = ({ stockData, pincodes, productId, setProductId }) => {
         deliveryTime = currentTime < providerBTime
           ? `Same day delivery available for ${Math.floor((providerBTime - currentTime) / 60)} hour(s) and ${((providerBTime - currentTime) % 60)} minute(s), else take ${pincodeData.TAT} days.`
           : `Delivery will take ${pincodeData.TAT} days.`;
-      }else{
+      } else {
         deliveryTime = `Delivery will take ${pincodeData.TAT} days.`;
       }
 
@@ -46,43 +44,78 @@ const Form = ({ stockData, pincodes, productId, setProductId }) => {
   };
 
   return (
-    <div style={styles.container}>
+    <View style={styles.container}>
+      <Text style={styles.title}>Buy Product</Text>
       {result ? (
-        <div style={styles.card}>
-          <h2>Order Confirm</h2>
-          <p><strong>Product ID:</strong> {result.productId}</p>
-          <p><strong>Logistics Provider:</strong> {result.logisticsProvider}</p>
-          <p><strong>TAT:</strong> {result.tat} days</p>
-          <p><strong>Checked at:</strong> {result.time}</p>
-          <p><strong>{result.deliveryTime}</strong></p>
-        </div>
+        <View style={styles.card}>
+          <Text style={styles.text}>Order Confirmed</Text>
+          <Text style={styles.text}>Product ID: {result.productId}</Text>
+          <Text style={styles.text}>Logistics Provider: {result.logisticsProvider}</Text>
+          <Text style={styles.text}>Time of Order: {result.time}</Text>
+          <Text style={styles.text}>Delivery Time: {result.deliveryTime}</Text>
+          <Button title="Continue Buying" onPress={() => setBuyProduct(false)} />
+        </View>
       ) : (
-        <form onSubmit={checkAvailability} style={styles.form}>
-          <div style={styles.formGroup}>
-            <label htmlFor="productId" style={styles.label}>Product ID:</label>
-            <input type="text" id="productId" value={productId} onChange={(e) => setProductId(e.target.value)} required style={styles.input} />
-          </div>
-          <div style={styles.formGroup}>
-            <label htmlFor="pincode" style={styles.label}>Pincode:</label>
-            <input type="text" id="pincode" value={pincode} onChange={(e) => setPincode(e.target.value)} required style={styles.input} />
-          </div>
-          <button type="submit" style={styles.button}>Confirm Order</button>
-          {error && <div style={styles.error}>{error}</div>}
-        </form>
+        <View style={styles.form}>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter Product ID"
+            value={productId}
+            onChangeText={setProductId}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Enter Pincode"
+            value={pincode}
+            onChangeText={setPincode}
+          />
+          <Button title="Check Availability" onPress={checkAvailability} />
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+        </View>
       )}
-    </div>
+    </View>
   );
 };
 
-const styles = {
-  container: { padding: '20px', borderRadius: '8px', backgroundColor: '#f9f9f9', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', maxWidth: '400px', margin: 'auto' },
-  form: { display: 'flex', flexDirection: 'column', gap: '16px' },
-  formGroup: { display: 'flex', flexDirection: 'column' },
-  label: { marginBottom: '8px', fontSize: '16px', fontWeight: '600' },
-  input: { padding: '10px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '14px' },
-  button: { padding: '10px', backgroundColor: '#007BFF', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '16px' },
-  card: { padding: '20px', borderRadius: '8px', backgroundColor: '#e2f0d9', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', marginTop: '20px' },
-  error: { marginTop: '20px', color: 'red' },
-};
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  form: {
+    width: '100%',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    marginBottom: 12,
+    width: '100%',
+    borderRadius: 5,
+  },
+  card: {
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#28a745',
+    borderRadius: 8,
+    width: '100%',
+    alignItems: 'center',
+  },
+  text: {
+    fontSize: 16,
+    marginVertical: 4,
+  },
+  error: {
+    color: 'red',
+    marginTop: 8,
+  },
+});
 
 export default Form;

@@ -11,6 +11,7 @@ const Home = () => {
   const [productId, setProductId] = useState('');
   const [buyProduct, setBuyProduct] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showAvailableProducts, setShowAvailableProducts] = useState(false);
 
   useEffect(() => {
     const fetchCSV = async (filePath, setData) => {
@@ -37,15 +38,24 @@ const Home = () => {
     fetchCSV('../../assets/Pincodes.csv', setPincodes);
   }, []);
 
-  const mergedProducts = products.map((product) => {
-    const stockInfo = stockData.find((stock) => stock['Product ID'] === product['Product ID']);
-    return {
-      ...product,
-      stockAvailable: stockInfo && stockInfo['Stock Available'] === 'True',
-    };
-  });
+  const mergedProducts = !showAvailableProducts 
+    ? products.map((product) => {
+        const stockInfo = stockData.find((stock) => stock['Product ID'] === product['Product ID']);
+        return {
+          ...product,
+          stockAvailable: stockInfo && stockInfo['Stock Available'] === 'True',
+        };
+      })
+    : products
+        .map((product) => {
+          const stockInfo = stockData.find((stock) => stock['Product ID'] === product['Product ID']);
+          return {
+            ...product,
+            stockAvailable: stockInfo && stockInfo['Stock Available'] === 'True',
+          };
+        })
+        .filter((product) => product.stockAvailable);
 
-  // Filter products based on the search query
   const filteredProducts = mergedProducts.filter(product =>
     product['Product Name'].toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -60,10 +70,22 @@ const Home = () => {
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
-        <TouchableOpacity onPress={() => setBuyProduct(false)} style={styles.navButton}>
+        <TouchableOpacity 
+          onPress={() => setShowAvailableProducts(!showAvailableProducts)} 
+          style={[styles.navButton, styles.showAvailableButton]}>
+          <Text style={styles.navButtonText}>{showAvailableProducts ? 'Show All' : 'Show Available'}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          onPress={() => {
+            setBuyProduct(false);
+            setShowAvailableProducts(false);
+          }} 
+          style={[styles.navButton, styles.productListButton]}>
           <Text style={styles.navButtonText}>Product List</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setBuyProduct(true)} style={styles.navButton}>
+        <TouchableOpacity 
+          onPress={() => setBuyProduct(true)} 
+          style={[styles.navButton, styles.buyProductButton]}>
           <Text style={styles.navButtonText}>Buy Product</Text>
         </TouchableOpacity>
       </View>
@@ -71,7 +93,7 @@ const Home = () => {
       {/* Main Content */}
       {buyProduct ? (
         <View style={styles.formContainer}>
-          <Form stockData={stockData} pincodes={pincodes} productId={productId} setProductId={setProductId} />
+          <Form stockData={stockData} pincodes={pincodes} productId={productId} setProductId={setProductId} setBuyProduct={setBuyProduct} />
         </View>
       ) : (
         <View style={styles.productsContainer}>
@@ -90,28 +112,49 @@ const styles = StyleSheet.create({
   },
   navbar: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     backgroundColor: '#007BFF',
-    paddingVertical: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
     borderRadius: 8,
     marginBottom: 10,
   },
   searchBar: {
     flex: 1,
     marginHorizontal: 8,
-    padding: 10,
-    backgroundColor: '#ffffff', // Set background color to white
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#ffffff',
     borderRadius: 6,
-    borderColor: '#ced4da', // You can change this to a different color if needed
+    borderColor: '#ced4da',
     borderWidth: 1,
+    fontSize: 14,
   },
   navButton: {
-    padding: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 4,
+    backgroundColor: '#17a2b8',
+    marginHorizontal: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 2 },
   },
   navButtonText: {
     color: '#ffffff',
-    fontWeight: '600',
-    fontSize: 16,
+    fontWeight: '500',
+    fontSize: 14,
+  },
+  showAvailableButton: {
+    backgroundColor: '#28a745',
+  },
+  productListButton: {
+    backgroundColor: '#17a2b8',
+  },
+  buyProductButton: {
+    backgroundColor: '#ffc107',
   },
   productsContainer: {
     flex: 1,
@@ -142,5 +185,6 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
 });
+
 
 export default Home;

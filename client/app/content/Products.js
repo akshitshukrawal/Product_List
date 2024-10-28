@@ -3,7 +3,6 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native
 
 const Products = ({ mergedProducts, setProductId, setBuyProduct }) => {
   
-
   return (
     <View style={styles.container}>
       {console.log(mergedProducts)}
